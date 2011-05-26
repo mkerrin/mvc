@@ -14,15 +14,26 @@
 
     <script>
       goog.require('mvc.model.Model');
+
+      goog.require('goog.testing.net.XhrIo');
+      goog.require('goog.testing.recordConstructor');
       goog.require('goog.testing.jsunit');
     </script>
   </head>
   <body>
     <script>
+      function setUp() {
+          var old_send = goog.net.XhrIo.send;
+          goog.net.XhrIo = goog.testing.recordConstructor(goog.testing.net.XhrIo);
+          goog.net.XhrIo.send = old_send;
+      }
+
       function TestModel(attributes) {
           mvc.model.Model.call(this, attributes);
       };
       goog.inherits(TestModel, mvc.model.Model);
+
+      TestModel.prototype.url = "/testmodel/";
 
 
       function testBasicModel() {
@@ -40,16 +51,30 @@
       function testListenBasicModelChange() {
           var model = new TestModel({"attr1": 1, "attr2": 2});
           var changes = null;
+          var callback_model = null;
+          var callback_target = null;
 
           goog.events.listen(model, 'change', function(event) {
               changes = event.attributes;
+              callback_model = this;
+              callback_target = event.target;
           });
 
-          model.set({"attr1": 2});
+          model.update({"attr1": 2});
           // event fired
           assertObjectEquals(changes, {"attr1": 2});
           assertTrue(model.changed);
           assertObjectEquals(model.attributes, {"attr1": 2, "attr2": 2});
+          assertEquals(callback_model, model);
+          assertEquals(callback_target, model);
+      };
+
+      function testSaveModel() {
+          var model = new TestModel({"attr1": 1, "attr2": 2});
+          model.save();
+
+          var xhr = goog.net.XhrIo.getLastCall().getThis();
+          xhr.simulateResponse(200, 'ok');
       };
     </script>
   </body>
