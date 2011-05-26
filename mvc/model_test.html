@@ -74,7 +74,20 @@
           model.save();
 
           var xhr = goog.net.XhrIo.getLastCall().getThis();
-          xhr.simulateResponse(200, 'ok');
+          xhr.simulateResponse(
+              200, goog.json.serialize({"attr1": 1, "attr2": 2}));
+          assertEquals(model.changed, false);
+      };
+
+      function testSaveChangedModel() {
+          var model = new TestModel({"attr1": 1, "attr2": 2});
+          model.update({"attr1": 2});
+          model.save();
+
+          var xhr = goog.net.XhrIo.getLastCall().getThis();
+          xhr.simulateResponse(
+              200, goog.json.serialize({"attr1": 2, "attr2": 2}));
+          assertEquals(model.changed, false);
       };
     </script>
   </body>

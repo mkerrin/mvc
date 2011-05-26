@@ -7,6 +7,9 @@
  * Model.changed
  * Model.attributes
  * Model.update(newattributes)
+ *
+ * Model.save()
+ * Model.fetch()
  */
 goog.provide("mvc.model");
 goog.provide("mvc.model.Model");
@@ -100,11 +103,30 @@ mvc.model.Model.prototype.update = function(attrs) {
 /**
  * Interact with the data on the server. We can save or fetch the data.
  */
-mvc.model.Model.prototype.save = function(callback) {
-    var data = goog.json.serialize(this.attributes);
+mvc.model.Model.prototype.save = function(opt_success, opt_error) {
+    var model = this;
+
+    var save_callback = function(event) {
+        var xhr = event.target;
+        if (xhr.isSuccess()) {
+            var resp_data = goog.json.parse(xhr.getResponseText());
+            model.update(resp_data);
+            model.changed = false;
+            if (opt_success)
+                opt_succes(model, resp_data, xhr)
+        } else {
+            if (opt_error)
+                opt_error(model, xhr);
+        }
+    };
+
     goog.net.XhrIo.send(
-        this.url, callback,
-        "POST", data, {"Content-Type": "application/json"});
+        model.url,
+        save_callback,
+        "POST",
+        goog.json.serialize(model.attributes),
+        {"Content-Type": "application/json"}
+    );
 };
 
 
@@ -117,9 +139,12 @@ mvc.model.Model.prototype.fetch = function(opt_success, opt_error) {
         if (xhr.isSuccess()) {
             var resp_data = goog.json.parse(xhr.getResponseText());
             this.update(resp_data);
-            opt_success(this, resp_data)
+            this.changed = false;
+            if (opt_success)
+                opt_success(this, resp_data)
         } else {
-            opt_error(this, xhr);
+            if (opt_error)
+                opt_error(this, xhr);
         }
     };
     goog.net.XhrIo.send(this.url, fetch_callback, "GET");
