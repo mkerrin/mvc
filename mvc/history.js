@@ -4,7 +4,7 @@
 goog.provide("mvc.history");
 
 mvc.history.History = function() {
-
+    
 };
 
 mvc.history.History.prototype.start = function() {

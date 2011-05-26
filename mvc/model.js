@@ -78,21 +78,21 @@ mvc.model.Model.prototype.set = function(attr, value) {
 
 mvc.model.Model.prototype.update = function(attrs) {
     if (!attrs)
-	return this;
+        return this;
 
     var now = this.attributes;
     var updatedAttributes = {};
 
     for (var attr in attrs) {
-	var val = attrs[attr];
-	if (!mvc.model.isEqual(now[attr], val)) {
-	    now[attr] = updatedAttributes[attr] = val;
-	}
+        var val = attrs[attr];
+        if (!mvc.model.isEqual(now[attr], val)) {
+            now[attr] = updatedAttributes[attr] = val;
+        }
     }
 
     if (updatedAttributes) {
-	this.changed = true;
-	this.dispatchEvent(new mvc.model.ChangeEvent(updatedAttributes));
+        this.changed = true;
+        this.dispatchEvent(new mvc.model.ChangeEvent(updatedAttributes));
     }
 };
 
@@ -103,8 +103,8 @@ mvc.model.Model.prototype.update = function(attrs) {
 mvc.model.Model.prototype.save = function(callback) {
     var data = goog.json.serialize(this.attributes);
     goog.net.XhrIo.send(
-	this.url, callback,
-	"POST", data, {"Content-Type": "application/json"});
+        this.url, callback,
+        "POST", data, {"Content-Type": "application/json"});
 };
 
 
@@ -113,14 +113,14 @@ mvc.model.Model.prototype.save = function(callback) {
  */
 mvc.model.Model.prototype.fetch = function(opt_success, opt_error) {
     var fetch_callback = function(event) {
-	var xhr = event.target;
-	if (xhr.isSuccess()) {
-	    var resp_data = goog.json.parse(xhr.getResponseText());
-	    this.update(resp_data);
-	    opt_success(this, resp_data)
-	} else {
-	    opt_error(this, xhr);
-	}
+        var xhr = event.target;
+        if (xhr.isSuccess()) {
+            var resp_data = goog.json.parse(xhr.getResponseText());
+            this.update(resp_data);
+            opt_success(this, resp_data)
+        } else {
+            opt_error(this, xhr);
+        }
     };
     goog.net.XhrIo.send(this.url, fetch_callback, "GET");
 };
