@@ -4,13 +4,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>mvc.Model</title>
 
-    <script>
-      CLOSURE_NO_DEPS = true;
-      CLOSURE_BASE_PATH = "../";
-    </script>
-
     <script src="../closure-library/closure/goog/base.js"></script>
-    <script src="../deps.js"></script>
+    <script src="../mvc-deps.js"></script>
 
     <script>
       goog.require('mvc.model.Model');
@@ -88,6 +83,10 @@
           xhr.simulateResponse(
               200, goog.json.serialize({"attr1": 2, "attr2": 2}));
           assertEquals(model.changed, false);
+      };
+
+      function testFetchModel() {
+          // TestModel.get(4, function(model) { });
       };
     </script>
   </body>
