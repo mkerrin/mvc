@@ -710,6 +710,6 @@ goog.addDependency('closure-library/third_party/closure/goog/silverlight/silverl
 goog.addDependency('closure-library/third_party/closure/goog/silverlight/supporteduseragent.js', ['goog.silverlight.supportedUserAgent'], []);
 goog.addDependency('mvc/controller.js', ['mvc.controller'], []);
 goog.addDependency('mvc/history.js', ['mvc.history'], []);
-goog.addDependency('mvc/model.js', ['mvc.model', 'mvc.model.EventType', 'mvc.model.Model'], ['goog.events', 'goog.events.Event', 'goog.events.EventTarget']);
+goog.addDependency('mvc/model.js', ['mvc.model', 'mvc.model.EventType', 'mvc.model.Model'], ['goog.events', 'goog.events.Event', 'goog.events.EventTarget', 'goog.json', 'goog.net.XhrIo']);
 goog.addDependency('mvc/view.js', ['mvc.view.View'], []);
 goog.addDependency('todos/app.js', ['todos'], ['mvc.Model']);
