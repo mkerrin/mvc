@@ -149,6 +149,21 @@
           assertObjectEquals(model.attributes, {"id": 1, "attr1": 3, "attr2": 2});
       };
 
+      function testSaveChangedModelWitId3() {
+          // server returns no data, so we need to not remove all the attributes
+          var model = new TestModel({"id": 1, "attr1": 1, "attr2": 2});
+          model.update({"attr1": 2});
+          model.save();
+
+          var xhr = goog.net.XhrIo.getLastCall().getThis();
+          assertEquals(xhr.getLastUri(), "/testmodel/1");
+
+          xhr.simulateResponse(200, goog.json.serialize({}));
+          assertEquals(model.changed, false);
+          assertEquals(model.id, 1);
+          assertObjectEquals(model.attributes, {"id": 1, "attr1": 2, "attr2": 2});
+      };
+
       function testFetchModel() {
           // TestModel.get(4, function(model) { });
       };

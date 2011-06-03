@@ -98,6 +98,9 @@ mvc.model.Model.prototype.set = function(attr, value) {
 
 
 mvc.model.Model.prototype.update = function(attrs) {
+    if (!attrs)
+        return;
+
     var now = this.attributes;
     var updatedAttributes = {};
     var changed = false;
