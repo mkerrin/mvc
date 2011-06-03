@@ -1,21 +1,21 @@
 /**
  * A View is an object that interacts with the DOM.
  */
-goog.provide("mvc.view.View");
+goog.provide("mvc.View");
 
-goog.require("mvc.model.Model");
+goog.require("mvc.Model");
 
 goog.require("goog.ui.Component");
 
 /**
  * @constructor
  */
-mvc.view.View = function(model, opt_domHelper) {
+mvc.View = function(model, opt_domHelper) {
     goog.ui.Component.call(this, opt_domHelper);
 
     this.model = model;
 };
-goog.inherits(mvc.view.View, goog.ui.Component);
+goog.inherits(mvc.View, goog.ui.Component);
 
 
-mvc.view.View.prototype.
+// mvc.View.prototype.

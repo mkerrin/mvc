@@ -11,9 +11,8 @@
  * Model.save()
  * Model.fetch()
  */
-goog.provide("mvc.model");
-goog.provide("mvc.model.Model");
-goog.provide("mvc.model.EventType");
+goog.provide("mvc.Model");
+goog.provide("mvc.Model.EventType");
 
 goog.require("goog.events");
 goog.require("goog.events.Event");
@@ -23,27 +22,11 @@ goog.require("goog.net.XhrIo");
 goog.require("goog.json");
 
 /**
- * @constructor
- */
-mvc.model.ChangeEvent = function(attributes) {
-    goog.events.Event.call(this, "change");
-
-    this.attributes = attributes;
-};
-goog.inherits(mvc.model.ChangeEvent, goog.events.Event);
-
-
-mvc.model.EventType = {
-    CHANGE: "change"
-};
-
-
-/**
  * Model object.
  *
  * @constructor
  */
-mvc.model.Model = function(attributes) {
+mvc.Model = function(attributes) {
     goog.events.EventTarget.call(this);
 
     this.attributes = attributes || {};
@@ -51,16 +34,37 @@ mvc.model.Model = function(attributes) {
 
     this.changed = false;
 };
-goog.inherits(mvc.model.Model, goog.events.EventTarget);
+goog.inherits(mvc.Model, goog.events.EventTarget);
 
 
-mvc.model.Model.prototype.base_url = null;
+mvc.Model.prototype.base_url = null;
 
 
-mvc.model.Model.prototype.idAttribute = "id";
+mvc.Model.prototype.idAttribute = "id";
 
 
-mvc.model.Model.prototype.getUrl = function() {
+/**
+ * Events.
+ *
+ * @constructor
+ */
+mvc.Model.ChangeEvent = function(attributes) {
+    goog.events.Event.call(this, "change");
+
+    this.attributes = attributes;
+};
+goog.inherits(mvc.Model.ChangeEvent, goog.events.Event);
+
+
+mvc.Model.EventType = {
+    CHANGE: "change"
+};
+
+
+/**
+ * getUrl
+ */
+mvc.Model.prototype.getUrl = function() {
     var url = this.base_url;
     if (this.id) {
         url += (url.charAt(url.length - 1) == '/' ? '' : '/') + encodeURIComponent(this.id);
@@ -75,7 +79,7 @@ mvc.model.Model.prototype.getUrl = function() {
  *
  * @private
  */
-mvc.model.isEqual = function(a, b) {
+mvc.isEqual = function(a, b) {
     return a == b;
 };
 
@@ -83,12 +87,12 @@ mvc.model.isEqual = function(a, b) {
 /**
  * Get the value of an 
  */
-mvc.model.Model.prototype.get = function(attr) {
+mvc.Model.prototype.get = function(attr) {
     return this.attributes[attr];
 };
 
 
-mvc.model.Model.prototype.set = function(attr, value) {
+mvc.Model.prototype.set = function(attr, value) {
     this.attributes[attr] = value;
     if (attr == this.idAttribute)
         this.id = value;
@@ -97,7 +101,7 @@ mvc.model.Model.prototype.set = function(attr, value) {
 };
 
 
-mvc.model.Model.prototype.update = function(attrs) {
+mvc.Model.prototype.update = function(attrs) {
     // when saving models the response may not contain anything. Ignore
     // these update requests.
     if (!attrs)
@@ -109,7 +113,7 @@ mvc.model.Model.prototype.update = function(attrs) {
 
     for (var attr in attrs) {
         var val = attrs[attr];
-        if (!mvc.model.isEqual(now[attr], val)) {
+        if (!mvc.isEqual(now[attr], val)) {
             now[attr] = updatedAttributes[attr] = val;
             changed = true;
         }
@@ -120,7 +124,7 @@ mvc.model.Model.prototype.update = function(attrs) {
             this.id = updateAttributes[this.idAttribute];
 
         this.changed = true;
-        this.dispatchEvent(new mvc.model.ChangeEvent(updatedAttributes));
+        this.dispatchEvent(new mvc.Model.ChangeEvent(updatedAttributes));
     }
 };
 
@@ -128,7 +132,7 @@ mvc.model.Model.prototype.update = function(attrs) {
 /**
  * Interact with the data on the server. We can save or fetch the data.
  */
-mvc.model.Model.prototype.save = function(opt_success, opt_error) {
+mvc.Model.prototype.save = function(opt_success, opt_error) {
     var model = this;
 
     var save_callback = function(event) {
@@ -158,7 +162,7 @@ mvc.model.Model.prototype.save = function(opt_success, opt_error) {
 /**
  *
  */
-mvc.model.Model.prototype.fetch = function(opt_success, opt_error) {
+mvc.Model.prototype.fetch = function(opt_success, opt_error) {
     var fetch_callback = function(event) {
         var xhr = event.target;
         if (xhr.isSuccess()) {

@@ -8,7 +8,7 @@
     <script src="../mvc-deps.js"></script>
 
     <script>
-      goog.require('mvc.model.Model');
+      goog.require('mvc.Model');
 
       goog.require('goog.testing.net.XhrIo');
       goog.require('goog.testing.recordConstructor');
@@ -24,9 +24,9 @@
       };
 
       function TestModel(attributes) {
-          mvc.model.Model.call(this, attributes);
+          mvc.Model.call(this, attributes);
       };
-      goog.inherits(TestModel, mvc.model.Model);
+      goog.inherits(TestModel, mvc.Model);
 
       TestModel.prototype.base_url = "/testmodel/";
 

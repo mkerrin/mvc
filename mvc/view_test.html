@@ -8,7 +8,7 @@
     <script src="../mvc-deps.js"></script>
 
     <script>
-      goog.require('mvc.view.View');
+      goog.require('mvc.View');
 
       goog.require('goog.testing.jsunit');
     </script>
@@ -18,9 +18,9 @@
       function setUp() { };
 
       function TestModel(attributes) {
-          mvc.model.Model.call(this, attributes);
+          mvc.Model.call(this, attributes);
       };
-      goog.inherits(TestModel, mvc.model.Model);
+      goog.inherits(TestModel, mvc.Model);
 
       TestModel.prototype.url = "/testmodel/";
 
