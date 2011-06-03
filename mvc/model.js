@@ -39,23 +39,35 @@ mvc.model.EventType = {
 
 
 /**
+ * Model object.
+ *
  * @constructor
  */
 mvc.model.Model = function(attributes) {
     goog.events.EventTarget.call(this);
 
     this.attributes = attributes || {};
+    this.id = this.attributes[this.idAttribute];
 
     this.changed = false;
 };
 goog.inherits(mvc.model.Model, goog.events.EventTarget);
 
 
-/**
- *
- */
-mvc.model.Model.prototype.url = null;
+mvc.model.Model.prototype.base_url = null;
 
+
+mvc.model.Model.prototype.idAttribute = "id";
+
+
+mvc.model.Model.prototype.getUrl = function() {
+    var url = this.base_url;
+    if (this.id) {
+        url += (url.charAt(url.length - 1) == '/' ? '' : '/') + encodeURIComponent(this.id);
+    }
+
+    return url;
+};
 
 /**
  * isEqual needs to compare two objects, arrays, literals to see if they
@@ -68,6 +80,9 @@ mvc.model.isEqual = function(a, b) {
 };
 
 
+/**
+ * Get the value of an 
+ */
 mvc.model.Model.prototype.get = function(attr) {
     return this.attributes[attr];
 };
@@ -75,25 +90,30 @@ mvc.model.Model.prototype.get = function(attr) {
 
 mvc.model.Model.prototype.set = function(attr, value) {
     this.attributes[attr] = value;
+    if (attr == this.idAttribute)
+        this.id = value;
+
     this.changed = true;
 };
 
 
 mvc.model.Model.prototype.update = function(attrs) {
-    if (!attrs)
-        return this;
-
     var now = this.attributes;
     var updatedAttributes = {};
+    var changed = false;
 
     for (var attr in attrs) {
         var val = attrs[attr];
         if (!mvc.model.isEqual(now[attr], val)) {
             now[attr] = updatedAttributes[attr] = val;
+            changed = true;
         }
     }
 
-    if (updatedAttributes) {
+    if (changed) {
+        if (this.idAttribute in updatedAttributes)
+            this.id = updateAttributes[this.idAttribute];
+
         this.changed = true;
         this.dispatchEvent(new mvc.model.ChangeEvent(updatedAttributes));
     }
@@ -110,8 +130,8 @@ mvc.model.Model.prototype.save = function(opt_success, opt_error) {
         var xhr = event.target;
         if (xhr.isSuccess()) {
             var resp_data = goog.json.parse(xhr.getResponseText());
-            model.update(resp_data);
             model.changed = false;
+            model.update(resp_data);
             if (opt_success)
                 opt_succes(model, resp_data, xhr)
         } else {
@@ -121,7 +141,7 @@ mvc.model.Model.prototype.save = function(opt_success, opt_error) {
     };
 
     goog.net.XhrIo.send(
-        model.url,
+        model.getUrl(),
         save_callback,
         "POST",
         goog.json.serialize(model.attributes),
@@ -138,8 +158,8 @@ mvc.model.Model.prototype.fetch = function(opt_success, opt_error) {
         var xhr = event.target;
         if (xhr.isSuccess()) {
             var resp_data = goog.json.parse(xhr.getResponseText());
-            this.update(resp_data);
             this.changed = false;
+            this.update(resp_data);
             if (opt_success)
                 opt_success(this, resp_data)
         } else {

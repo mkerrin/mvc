@@ -21,30 +21,43 @@
           var old_send = goog.net.XhrIo.send;
           goog.net.XhrIo = goog.testing.recordConstructor(goog.testing.net.XhrIo);
           goog.net.XhrIo.send = old_send;
-      }
+      };
 
       function TestModel(attributes) {
           mvc.model.Model.call(this, attributes);
       };
       goog.inherits(TestModel, mvc.model.Model);
 
-      TestModel.prototype.url = "/testmodel/";
+      TestModel.prototype.base_url = "/testmodel/";
 
 
-      function testBasicModel() {
+      function testBasicModelWithoutId() {
           var model = new TestModel({"attr1": 1, "attr2": 2});
 
           assertEquals(model.get("attr1"), 1);
           assertEquals(model.get("attr2"), 2);
           assertUndefined(model.get("attr3"));
-
+          assertEquals(model.idAttribute, "id");
+          assertUndefined(model.id);
           assertObjectEquals(model.attributes, {"attr1": 1, "attr2": 2});
           assertFalse(model.changed);
       };
 
+      function testBasicModelWithId() {
+          var model = new TestModel({"id": 1, "attr1": 1, "attr2": 2});
+
+          assertEquals(model.get("attr1"), 1);
+          assertEquals(model.get("attr2"), 2);
+          assertUndefined(model.get("attr3"));
+          assertEquals(model.idAttribute, "id");
+          assertEquals(model.id, 1);
+          assertObjectEquals(
+              model.attributes, {"id": 1, "attr1": 1, "attr2": 2});
+          assertFalse(model.changed);
+      };
 
       function testListenBasicModelChange() {
-          var model = new TestModel({"attr1": 1, "attr2": 2});
+          var model = new TestModel({"id": 1, "attr1": 1, "attr2": 2});
           var changes = null;
           var callback_model = null;
           var callback_target = null;
@@ -59,10 +72,24 @@
           // event fired
           assertObjectEquals(changes, {"attr1": 2});
           assertTrue(model.changed);
-          assertObjectEquals(model.attributes, {"attr1": 2, "attr2": 2});
+          assertEquals(model.id, 1);
+          assertObjectEquals(
+              model.attributes, {"id": 1, "attr1": 2, "attr2": 2});
           assertEquals(callback_model, model);
           assertEquals(callback_target, model);
       };
+
+
+      function testModelUrl1() {
+          var model = new TestModel({"attr1": 1});
+          assertEquals(model.getUrl(), "/testmodel/");
+      };
+
+      function testModelUrl2() {
+          var model = new TestModel({"id": 1, "attr1": 1});
+          assertEquals(model.getUrl(), "/testmodel/1");
+      };
+
 
       function testSaveModel() {
           var model = new TestModel({"attr1": 1, "attr2": 2});
@@ -74,15 +101,52 @@
           assertEquals(model.changed, false);
       };
 
-      function testSaveChangedModel() {
+      function testSaveChangedModelWithoutId() {
           var model = new TestModel({"attr1": 1, "attr2": 2});
           model.update({"attr1": 2});
           model.save();
 
           var xhr = goog.net.XhrIo.getLastCall().getThis();
+          assertEquals(xhr.getLastUri(), "/testmodel/");
+
           xhr.simulateResponse(
               200, goog.json.serialize({"attr1": 2, "attr2": 2}));
           assertEquals(model.changed, false);
+          assertUndefined(model.id);
+      };
+
+      function testSaveChangedModelWitId() {
+          var model = new TestModel({"id": 1, "attr1": 1, "attr2": 2});
+          model.update({"attr1": 2});
+          model.save();
+
+          var xhr = goog.net.XhrIo.getLastCall().getThis();
+          assertEquals(xhr.getLastUri(), "/testmodel/1");
+
+          xhr.simulateResponse(
+              200, goog.json.serialize({"id": 1, "attr1": 2, "attr2": 2}));
+          assertEquals(model.changed, false);
+          assertEquals(model.id, 1);
+          assertObjectEquals(model.attributes, {"id": 1, "attr1": 2, "attr2": 2});
+      };
+
+      function testSaveChangedModelWitId2() {
+          // server returned different data to what was changed by the client
+          // This fires a change event and sets the changed to true.
+          // This can happen if the server reformats and chagnes the type
+          // of a variable.
+          var model = new TestModel({"id": 1, "attr1": 1, "attr2": 2});
+          model.update({"attr1": 2});
+          model.save();
+
+          var xhr = goog.net.XhrIo.getLastCall().getThis();
+          assertEquals(xhr.getLastUri(), "/testmodel/1");
+
+          xhr.simulateResponse(
+              200, goog.json.serialize({"id": 1, "attr1": 3, "attr2": 2}));
+          assertEquals(model.changed, true);
+          assertEquals(model.id, 1);
+          assertObjectEquals(model.attributes, {"id": 1, "attr1": 3, "attr2": 2});
       };
 
       function testFetchModel() {
