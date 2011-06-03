@@ -99,7 +99,7 @@ mvc.model.Model.prototype.set = function(attr, value) {
 
 mvc.model.Model.prototype.update = function(attrs) {
     // when saving models the response may not contain anything. Ignore
-    // these responses.
+    // these update requests.
     if (!attrs)
         return;
 
