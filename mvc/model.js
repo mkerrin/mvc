@@ -44,24 +44,6 @@ mvc.Model.prototype.idAttribute = "id";
 
 
 /**
- * Events.
- *
- * @constructor
- */
-mvc.Model.ChangeEvent = function(attributes) {
-    goog.events.Event.call(this, "change");
-
-    this.attributes = attributes;
-};
-goog.inherits(mvc.Model.ChangeEvent, goog.events.Event);
-
-
-mvc.Model.EventType = {
-    CHANGE: "change"
-};
-
-
-/**
  * getUrl
  */
 mvc.Model.prototype.getUrl = function() {
@@ -177,4 +159,22 @@ mvc.Model.prototype.fetch = function(opt_success, opt_error) {
         }
     };
     goog.net.XhrIo.send(this.url, fetch_callback, "GET");
+};
+
+
+/**
+ * Events.
+ *
+ * @constructor
+ */
+mvc.Model.ChangeEvent = function(attributes) {
+    goog.events.Event.call(this, "change");
+
+    this.attributes = attributes;
+};
+goog.inherits(mvc.Model.ChangeEvent, goog.events.Event);
+
+
+mvc.Model.EventType = {
+    CHANGE: "change"
 };
